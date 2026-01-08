@@ -3,7 +3,7 @@ from tkinter import *
 from tkinter import messagebox
 from janelas.janaelasistema import Sismeta
 from janelas.cadastro import Cadastra_Usuario
-from diretorioCliente.banco_de_dados import consultar_dados
+from diretorioCliente.banco_de_dados import consultar_dados,criar_tabela_extrato
 import bcrypt
 
 class Jenala(Tk):
@@ -44,12 +44,13 @@ class Jenala(Tk):
         self.quit()
         
     def login(self):
-      
-      for a in consultar_dados():
-          hasf_senha = a[8]
-          if bcrypt.checkpw(self.entry_login.get().encode('utf-8'), hasf_senha):
-              self.destroy()
-              Sismeta(a)
+        for a in consultar_dados():
+            hasf_senha = a[8]
+            if bcrypt.checkpw(self.entry_login.get().encode('utf-8'), hasf_senha):
+                self.destroy()
+                Sismeta(a)
+criar_tabela_extrato()
+        
             
 def rodar_mypp():
     app = Jenala()
