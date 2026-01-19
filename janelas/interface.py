@@ -3,7 +3,7 @@ from tkinter import *
 from tkinter import messagebox
 from janelas.janaelasistema import Sismeta
 from janelas.cadastro import Cadastra_Usuario
-from diretorioCliente.banco_de_dados import consultar_dados,criar_tabela_extrato
+from diretorioCliente.banco_de_dados import consultar_dados
 import bcrypt
 
 class Jenala(Tk):
@@ -36,6 +36,9 @@ class Jenala(Tk):
         self.label_cadastra_usuario.bind("<Button-1>", self.cadastramento)
         self.label_cadastra_usuario.place(x=5, y=175)
 
+        self.text_usuario = Label(self,fg='red',bg='black')
+        self.text_usuario.place(x=190,y=140)
+
     def cadastramento(self,s):
         self.destroy()
         self.cliente = Cadastra_Usuario(Jenala)
@@ -44,14 +47,23 @@ class Jenala(Tk):
         self.quit()
         
     def login(self):
-        for a in consultar_dados():
-            hasf_senha = a[8]
-            if bcrypt.checkpw(self.entry_login.get().encode('utf-8'), hasf_senha):
-                self.destroy()
-                Sismeta(a)
-criar_tabela_extrato()
-        
-            
+        try:
+            acesso = False
+            if not self.entry_login.get().split():
+                messagebox.showerror('Erro !','prencha os campo vazios')
+            else:   
+                for a in consultar_dados():
+                    hasf_senha = a[8]
+                    if bcrypt.checkpw(self.entry_login.get().encode('utf-8'), hasf_senha):
+                        acesso = True
+                        self.destroy()
+                        Sismeta(a)
+                        print('kkkkkkk')
+                if acesso == False:
+                    messagebox.showerror('Erro !','Senha inválido')
+        except:
+            self.text_usuario['text'] = 'Cadastrar um usuario'
+           
 def rodar_mypp():
     app = Jenala()
     app['bg'] = 'black'

@@ -7,9 +7,12 @@ from diretorioCliente.cliente import Cliente
 from diretorioBanco.criptografasenha import criptografa
 from diretorioCliente.mascaramento import conta_bancaria_
 
+
+
 class Cadastra_Usuario(Tk):
     def __init__(self, *args):
         super().__init__()
+     
 
         largura = 800
         altura = 550
@@ -150,17 +153,15 @@ class Cadastra_Usuario(Tk):
         else:
             try:
                 ca = Cliente(self.entry_nome.get(),self.entry_cpf.get(),self.entry_email.get(),self.entry_telefone.get())
-                self.banco = ContaBancaria(ca,self.entry_conta.get(),conta_bancaria_(self.entry_agencia.get()),criptografa(self.entry_senha.get()),criptografa(self.entry_senha.get()))
-
-                inserir_dados(self.banco.cliente.nome, self.banco.cliente.cpf, self.banco.cliente.email, self.banco.cliente.telefone,self.banco.conta, self.banco.agencia,self.banco.login,self.banco.senha,self.banco.saldo)
+                self.banco = ContaBancaria(ca,self.entry_conta.get(),self.entry_agencia.get(),criptografa(self.entry_senha.get()),criptografa(self.entry_senha.get()))
+                inserir_dados(self.banco.cliente.nome,self.banco.cliente.cpf,self.banco.cliente.email,self.banco.cliente.telefone,self.banco.conta,self.banco.agencia,self.banco.login,self.banco.senha,self.banco.saldo)
                 messagebox.showinfo("Atenção", "Cadastro realizado com sucesso")
                 self.limpa_entrys()
                 
             except Exception as e:
                 print(e)
                 messagebox.showwarning("Atenção", "Erro ao cadastrar")
-
-            # 3030 3131  
+            # 3030 3131    
        
     def deleta_janela(self,s):
         self.destroy()
@@ -169,14 +170,14 @@ class Cadastra_Usuario(Tk):
         ca.mainloop()
     # -------------------------------------- funcao update --------------------------------   
     def funcao_update(self):
-        self.label_login = LabelFrame(self.cadastro_frame2,width=150,height=200, text="Senha...", font=("Arial", 14), bg="black", fg="white",padx=6)
-        self.label_login.grid(row=9, column=0,padx=8)
+        self.label_login = LabelFrame(self.cadastro_frame2,width=150,height=200,text="Senha...", font=("Arial", 14), bg="black", fg="white",padx=6)
+        self.label_login.grid(row=9,column=0,padx=8)
 
-        self.entry_update = ctk.CTkEntry(self.label_login, placeholder_text="Senha...", width=100,font=("Arial",15),show='*')
+        self.entry_update = ctk.CTkEntry(self.label_login,placeholder_text="Senha...",width=100,font=("Arial",15),show='*')
         self.entry_update.pack(pady=10)
 
-        self.bt_update = ctk.CTkButton(self.label_login, text="Busca usuario",width=80,font=("Arial",10))
-        self.bt_update.bind("<Button-1>", self.progessa_dados)
+        self.bt_update = ctk.CTkButton(self.label_login,text="Busca usuario",width=80,font=("Arial",10))
+        self.bt_update.bind("<Button-1>",self.progessa_dados)
         self.bt_update.pack(pady=10)
 
         self.bt_confimar = ctk.CTkButton(self.label_login, text="Confirma",width=80,font=("Arial",10))
@@ -210,10 +211,7 @@ class Cadastra_Usuario(Tk):
                         self.var_senha.set('**************')
                     else:
                         print("Login inválido")
-                        self.entry_update.configure(border_color="red",
-    border_width=2,
-   
-    placeholder_text="Senha incorreta")
+                        self.entry_update.configure(border_color="red",border_width=2,placeholder_text="Senha incorreta")
             except Exception as e:
                 print(e)
                
@@ -223,8 +221,6 @@ class Cadastra_Usuario(Tk):
             
             if not self.entry_login.get() == '**************' and not self.entry_senha.get() == '**************':
                 update_dados(self.lista_dados[0][0],self.var_nome.get(),self.var_cpf.get(),self.var_email.get(),self.var_telefone.get(),self.var_conta.get(),self.var_agencia.get(),criptografa(self.var_login.get()),criptografa(self.var_senha.get()))
-
-                
                 messagebox.showinfo("Sucesso", "Atualizado com sucesso")
                 self.entry_update.delete(0,END)
                 self.limpa_entrys()
@@ -244,6 +240,3 @@ class Cadastra_Usuario(Tk):
         self.entry_login.delete(0,END)
         self.entry_senha.delete(0,END)
 
-
-
-        # carlos 000.000.000-00 carlos@gmail.com 999999999 0023 45879-1 3030 3131

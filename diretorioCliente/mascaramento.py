@@ -52,4 +52,9 @@ def conta_bancaria_(numero):
     return f"{corpo}-{dv}"
 
 
+def formata_dinheiro(valor):
+    dim = f'{valor:_.2f}'
+    dim = dim.replace('.',',').replace('_','.')
+    return dim
+
 # Exemplo de uso
