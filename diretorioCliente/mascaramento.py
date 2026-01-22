@@ -42,16 +42,6 @@ def mascarar_telefone(telefone):
     return f"{inicio}-{meio}{fim}"
 
 
-def conta_bancaria_(numero):
-    numero = str(numero)
-
-    # últimos dígitos sempre será o DV
-    corpo = numero[:-1]   # tudo menos o último
-    dv = numero[-1]       # último dígito
-
-    return f"{corpo}-{dv}"
-
-
 def formata_dinheiro(valor):
     dim = f'{valor:_.2f}'
     dim = dim.replace('.',',').replace('_','.')

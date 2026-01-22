@@ -5,7 +5,7 @@ from diretorioCliente.banco_de_dados import consultar_dados,inserir_dados,update
 from diretorioBanco.contabancaria import ContaBancaria
 from diretorioCliente.cliente import Cliente
 from diretorioBanco.criptografasenha import criptografa
-from diretorioCliente.mascaramento import conta_bancaria_
+#from diretorioCliente.mascaramento import conta_bancaria_
 
 
 

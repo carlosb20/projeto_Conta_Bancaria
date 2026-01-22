@@ -4,7 +4,7 @@ import customtkinter as ctk
 import janelas.interface as janela_interface
 from diretorioCliente.banco_de_dados import *
 from tkinter import messagebox
-from diretorioCliente.mascaramento import formata_dinheiro
+from diretorioCliente.mascaramento import formata_dinheiro,mascarar_cpf,mascarar_email,mascarar_telefone
 from datetime import datetime
 data = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
@@ -73,7 +73,7 @@ class Sismeta(Tk):
     
           
         self.btn_saldo = ctk.CTkButton(self.frame_btn_entry, text="Saldo",width=190)
-        #self.label_sair.bind("<Button-1>", self.sair)
+        self.btn_saldo.configure(command=self.saldo)
         self.btn_saldo.grid(row=1, column=1,padx=70)
 
         
@@ -114,8 +114,11 @@ class Sismeta(Tk):
         self.btn_enviar_deposito.configure(command=self.enviar_dinheiro)
         self.btn_enviar_deposito.place(x=225,y=200)
 
-        self.text_titula = Label(self.frame_deposito,font=('calibri',15),bg='black',fg='white')
-        self.text_titula.place(x=235,y=250)
+        self.caixa_text = Frame(self.frame_deposito,bg='SkyBlue',width=400,height=40)
+        self.caixa_text.place(x=90,y=250)
+
+        self.text_titula = Label(self.caixa_text,font=('calibri',15,'bold'),bg='SkyBlue',fg='black')
+        self.text_titula.place(x=0,y=0)
 
     def ativa_btn(self,s):
         agencia = self.agencia_set.get()
@@ -125,7 +128,7 @@ class Sismeta(Tk):
             if a[5] == agencia and a[6] == conta :
                 ativo = False
                 self.btn_enviar_deposito.configure(state='normal')
-                self.text_titula['text'] = f'Titular {a[1]}'
+                self.text_titula['text'] = f'Titular: {a[1]}'
         if ativo:
             self.btn_enviar_deposito.configure(state='disabled')
             self.text_titula['text'] = ''
@@ -195,14 +198,77 @@ class Sismeta(Tk):
         for x in range(0,len(lista_dados)):
             self.tag = "negativo" if x % 2 else "positivo"
             self.tree_extrato.insert("","end",values=(lista_dados[x]),tags=self.tag)
-            
-    
+
+# ------------------------ Saldo -------------------------------------
+
+    def saldo(self):
+        self.frame_btn_entry.destroy()
+        self.label_volta.place_forget()
+        self.label_volta.place(x=5, y=5)
+
+        self.frame_saldo = Frame(self,bg='black')
+        #self.frame_saldo.configure(highlightbackground="white", highlightcolor="white", highlightthickness=1)
+        self.des_frame = self.frame_saldo
+        self.frame_saldo.place(relheight=0.50,relwidth=0.60,relx=0.20,rely=0.20) 
+
+        self.frame_d = Frame(self.frame_saldo,width=200,height=10)
+        self.frame_d.place(x=100,y=5)
+
+        self.frame_d.grid_columnconfigure(0, minsize=100)
+        self.frame_d.grid_columnconfigure(1, minsize=300)
+
+
+        for a in consultar_dados():
+            if a[0] == self.cliente[0]:
+                print(a)
+                # ----------- Nome cliente --------------------------------
+                self.label_cliente = Label(self.frame_d,text=f'Cliente: {a[1]}')
+                self.label_cliente.config(font=('calibri',15))
+                self.label_cliente.grid(row=0,column=0,sticky='w')
+
+                # -------------- Cpf cliente -----------------------------
+
+                self.label_cpf_c = Label(self.frame_d,text=f'Cpf: {mascarar_cpf(a[2])}')
+                self.label_cpf_c.config(font=('calibri',15))
+                self.label_cpf_c.grid(row=1,column=0,sticky='w')
+
+                # -------------- Email -----------------------------------
+
+                self.label_email= Label(self.frame_d,text=f'Email: {mascarar_email(a[3])}')
+                self.label_email.config(font=('calibri',15))
+                self.label_email.grid(row=2,column=0,sticky='w')
+
+                # ------------- Telefone ---------------------------------
+
+                self.label_telefone = Label(self.frame_d,text=f'Telefone: {mascarar_telefone(a[4])}')
+                self.label_telefone.config(font=('calibri',15))
+                self.label_telefone.grid(row=3,column=0,sticky='w')
+
+                # -------------- Conta -----------------------------------
+
+                self.label_conta= Label(self.frame_d,text=f'Conta: {a[5]}')
+                self.label_conta.config(font=('calibri',15))
+                self.label_conta.grid(row=4,column=0,sticky='w')
+
+                # ------------------- Agencia ----------------------------
+
+                self.label_agencia = Label(self.frame_d,text=f'Agencia: {a[6]}')
+                self.label_agencia.config(font=('calibri',15))
+                self.label_agencia.grid(row=5,column=0,sticky='w')
+
+                # -------------- Saldo -----------------------------------
+
+                self.label_saldo = Label(self.frame_d,text=f'Saldo: {formata_dinheiro(a[9])} R$')
+                self.label_saldo.config(font=('calibri',15))
+                self.label_saldo.grid(row=6,column=0,sticky='w')
+
+# --------------------------------------------------------------------   
     def saque(self):
         pass
     def transferencia(self):
         pass
-    
-    def janela_p(self,s):
+
+    def janela_p(self,s):                          
         self.destroy()
         ja_ = janela_interface.Jenala()
         ja_['bg'] = 'black'
