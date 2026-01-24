@@ -24,7 +24,6 @@ class Sismeta(Tk):
         self.wm_overrideredirect(True)
         self.resizable(False, False)
 
-        #print(args[0])
         self.framesDados()
         # ------------------ fecha a janela --------------------------------------
 
@@ -39,7 +38,6 @@ class Sismeta(Tk):
         # self.label_volta.place(x=5, y=5)
         self.label_volta.place_forget()
 
-        #print(args)
 
     def framesDados(self):
         #--------------- frames -------------------------------------------------------
@@ -56,7 +54,7 @@ class Sismeta(Tk):
         #-----------------------------------btn saque ----------------------------------------------
 
         self.btn_saque = ctk.CTkButton(self.frame_btn_entry, text="Saque",width=190)
-        #self.label_transferencia.bind("<Button-1>", self.transferencia)
+        self.btn_saque.configure(command=self.saque)
         self.btn_saque.grid(row=1, column=0,pady=20,padx=20)
 
         #---------------------------- extrato -----------------------------------------------
@@ -82,7 +80,6 @@ class Sismeta(Tk):
         self.btn_pagamento_conta.grid(row=2, column=1,padx=70)
 
     def jane(self,s):
-        # self.frame_deposito.destroy()
         self.des_frame.destroy()
         self.framesDados()
         self.label_volta.place_forget()
@@ -138,6 +135,7 @@ class Sismeta(Tk):
             messagebox.showerror('Erro','prencha os campo vazios')
                     
         else:
+            
             agencia = self.agencia_set.get()
             conta = self.conta_set.get()
             cont = 0
@@ -207,7 +205,6 @@ class Sismeta(Tk):
         self.label_volta.place(x=5, y=5)
 
         self.frame_saldo = Frame(self,bg='black')
-        #self.frame_saldo.configure(highlightbackground="white", highlightcolor="white", highlightthickness=1)
         self.des_frame = self.frame_saldo
         self.frame_saldo.place(relheight=0.50,relwidth=0.60,relx=0.20,rely=0.20) 
 
@@ -217,10 +214,8 @@ class Sismeta(Tk):
         self.frame_d.grid_columnconfigure(0, minsize=100)
         self.frame_d.grid_columnconfigure(1, minsize=300)
 
-
         for a in consultar_dados():
             if a[0] == self.cliente[0]:
-                print(a)
                 # ----------- Nome cliente --------------------------------
                 self.label_cliente = Label(self.frame_d,text=f'Cliente: {a[1]}')
                 self.label_cliente.config(font=('calibri',15))
@@ -262,9 +257,59 @@ class Sismeta(Tk):
                 self.label_saldo.config(font=('calibri',15))
                 self.label_saldo.grid(row=6,column=0,sticky='w')
 
-# --------------------------------------------------------------------   
+# ------------------- função saque -------------------------------------------------   
     def saque(self):
-        pass
+        self.frame_btn_entry.destroy()
+        self.label_volta.place(x=5, y=5)
+        self.frame_saque = Frame(self,bg='black')
+        self.des_frame = self.frame_saque
+        self.frame_saque.configure(highlightbackground="white", highlightcolor="white", highlightthickness=1)
+        self.frame_saque.place(relheight=0.50,relwidth=0.60,relx=0.20,rely=0.20) 
+
+        self.txt_saque = Label(self.frame_saque,text='Saque')
+        self.txt_saque.config(font=('calibri',20),bg='black',fg='white')
+        self.txt_saque.place(x=270,y=8)
+
+        self.entry_saque = ctk.CTkEntry(self.frame_saque)
+        self.entry_saque.configure(font=('calibri',25))
+        self.entry_saque.place(x=235,y=60)
+
+        self.btSaque = ctk.CTkButton(self.frame_saque,text='Saque')
+        self.btSaque.configure(command=self.sacar_dinheiro)
+        self.btSaque.place(x=235,y=120)
+
+        self.label_saque_text = Label(self.frame_saque,bg='black',foreground='white')
+        self.label_saque_text.config(font=('calibri',15))
+        self.label_saque_text.place(x=180,y=180)
+
+    def sacar_dinheiro(self):
+
+        valor = self.entry_saque.get()
+        if not valor.split() or not valor.isdigit():
+            messagebox.showerror('Erro!','Operação inválida')
+        else:
+            cont = 0
+            for x in consultar_dados():
+                if x[0] == self.cliente[0]:
+                    if x[9] >= int(valor):
+                        cont = int(valor)
+                        valor = x[9] - int(valor)
+                        atualizar_dados_bancario(x[0],valor)
+                        inserir_no_extrato(x[0],x[1],data,'Saque',cont,valor)
+                        self.label_saque_text['text'] = 'saque realizado com sucesso'
+                        self.label_saque_text['fg'] = 'white'
+                        self.label_saque_text.place(x=180,y=180)
+                        self.entry_saque.delete(0,END)
+                        self.label_saque_text.after(3000, lambda: self.label_saque_text.config(text=''))
+
+                    else:
+                        self.label_saque_text['text'] = 'Saldo insuficiente'
+                        self.label_saque_text['fg'] = 'red'
+                        self.label_saque_text.place(x=230,y=180)
+                        self.label_saque_text.after(3000, lambda: self.label_saque_text.config(text=''))
+       
+# ----------------------------------------------------------------------------------
+
     def transferencia(self):
         pass
 
