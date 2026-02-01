@@ -67,6 +67,7 @@ class Sismeta(Tk):
 
         self.btn_transferencia = ctk.CTkButton(self.frame_btn_entry, text="Transferência",width=190)
         #self.label_sair.bind("<Button-1>", self.sair)
+        self.btn_transferencia.configure(command=self.transferencia)
         self.btn_transferencia.grid(row=0, column=1,padx=70)
     
           
@@ -187,7 +188,6 @@ class Sismeta(Tk):
         self.tree_extrato.tag_configure("negativo", background="PowderBlue")
         self.tree_extrato.tag_configure("positivo", background="PaleTurquoise") 
         
-        # 8181 , 3030 , 5151
        
         lista_dados = list()
         for x in set_extrato(self.cliente[0]):
@@ -308,10 +308,83 @@ class Sismeta(Tk):
                         self.label_saque_text.place(x=230,y=180)
                         self.label_saque_text.after(3000, lambda: self.label_saque_text.config(text=''))
        
-# ----------------------------------------------------------------------------------
+# --------------------------- transferencia ------------------------------------------------------
 
     def transferencia(self):
-        pass
+        self.frame_btn_entry.destroy()
+        self.label_volta.place(x=5, y=5)
+        self.frame_transferencia = Frame(self,bg='black')
+        self.des_frame = self.frame_transferencia
+        self.frame_transferencia.configure(highlightbackground="white", highlightcolor="white", highlightthickness=1)
+        self.frame_transferencia.place(relheight=0.60,relwidth=0.60,relx=0.20,rely=0.20)
+
+
+        self.txt_trans = Label(self.frame_transferencia,text='Transferência',font=('calibri',25),bg='black',fg='white')
+        self.txt_trans.pack(pady=10) 
+
+        self.agencia_trans = ctk.CTkEntry(self.frame_transferencia,placeholder_text='Agencia',font=('arial',20))
+        self.agencia_trans.bind('<KeyRelease>',self.ativa_btn_trans)
+        self.agencia_trans.place(x=225,y=70)
+
+        self.conta_trans = ctk.CTkEntry(self.frame_transferencia,placeholder_text='Conta',font=('arial',20))
+        self.conta_trans.bind('<KeyRelease>',self.ativa_btn_trans)
+        self.conta_trans.place(x=225,y=108)
+
+        self.valor_trans = ctk.CTkEntry(self.frame_transferencia,placeholder_text='Valor',font=('arial',20))
+        self.valor_trans.place(x=225,y=150)
+
+        self.btn_enviar_trans= ctk.CTkButton(self.frame_transferencia,text='Enviar',state='disabled')
+        self.btn_enviar_trans.configure(command=self.enviar_trandferencia)
+        self.btn_enviar_trans.place(x=225,y=200)
+
+        self.caixa_text_trans = Frame(self.frame_transferencia,bg='silver',width=400,height=30)
+        self.caixa_text_trans.place(x=90,y=250)
+
+        self.text_titula_trans = Label(self.caixa_text_trans,font=('calibri',15,'bold'),bg='silver',fg='black')
+        self.text_titula_trans.place(x=0,y=0)
+
+        self.label_trans_ok = Label(self.frame_transferencia)
+        self.label_trans_ok.config(font=('calibri',13),bg='black',fg='red')
+        self.label_trans_ok.place(x=160,y=290)
+
+    def ativa_btn_trans(self,s):
+        agencia = self.agencia_trans.get()
+        conta = self.conta_trans.get()
+        ativo = True
+        for a in consultar_dados():
+            if a[5] == agencia and a[6] == conta :
+                ativo = False
+                self.btn_enviar_trans.configure(state='normal')
+                self.text_titula_trans['text'] = f'Titular: {a[1]}'
+        if ativo:
+            self.btn_enviar_trans.configure(state='disabled')
+            self.text_titula_trans['text'] = ''
+
+    def enviar_trandferencia(self):
+        
+        agencia_ = self.agencia_trans.get()
+        conta_ = self.conta_trans.get()
+        valor_trans =  self.valor_trans.get()
+        if not agencia_ or not conta_ or not valor_trans.isdigit(): 
+            messagebox.showerror('Erro!','Dados inválido')
+
+        else:
+            
+            for x in consultar_dados():
+                if x[5] == agencia_ and x[6] == conta_:
+                    if x[9] >= int(valor_trans):
+                        transferir(self.cliente[0],x[0],int(valor_trans))
+                        self.agencia_trans.delete(0,END)
+                        self.conta_trans.delete(0,END)
+                        self.valor_trans.delete(0,END)
+                        self.label_trans_ok['text'] ='transferência Realizada com Sucesso '
+                        self.label_trans_ok.after(3000,lambda:self.label_trans_ok.config(text=''))
+
+                    else:
+                        messagebox.showerror('Erro na transferência','Saldo inválido')
+                        
+# -------------------------------------------------------------------------------------------------
+
 
     def janela_p(self,s):                          
         self.destroy()

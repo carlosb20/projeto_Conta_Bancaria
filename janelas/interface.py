@@ -58,7 +58,6 @@ class Jenala(Tk):
                         acesso = True
                         self.destroy()
                         Sismeta(a)
-                        print('kkkkkkk')
                 if acesso == False:
                     messagebox.showerror('Erro !','Senha inválido')
         except:

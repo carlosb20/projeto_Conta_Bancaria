@@ -1,4 +1,7 @@
 import sqlite3
+from datetime import datetime
+
+data = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 # ----------- função banco de dados -------------------
 def criarbando_de_dados():
@@ -99,7 +102,6 @@ def criar_tabela_extrato():
         conn.commit()
     
 
-
 def inserir_no_extrato(contaid,titularconta,data,descricao, valor, saldo_apos):
     criar_tabela_extrato()
     conn = sqlite3.connect("banco.db")
@@ -112,11 +114,10 @@ def inserir_no_extrato(contaid,titularconta,data,descricao, valor, saldo_apos):
         """, (contaid,titularconta,data,descricao,valor,saldo_apos))
 
         conn.commit()
-        print(f"Movimentação inserida: {descricao}, valor: {valor:.2f}, saldo após: {saldo_apos:.2f}")
+        
 
     except Exception as e:
         conn.rollback()
-        print("Erro ao inserir no extrato:", e)
     finally:
         conn.close()
 
@@ -132,4 +133,76 @@ def set_extrato(valor):
     finally:
         conn.close()
 
+
+
+def transferir(conta_origem, conta_destino, valor):
+    conn = sqlite3.connect("banco.db")
+    conn.execute("PRAGMA foreign_keys = ON")
+    cursor = conn.cursor()
+
+    try:
+       
+        cursor.execute("SELECT nome,saldo FROM ContaBancario WHERE id = ?", (conta_origem,))
+        resultado_origem = cursor.fetchone()
+        titular_origem = resultado_origem[0]
+        saldo_origem = resultado_origem[1]
+
+
+        cursor.execute("SELECT nome,saldo FROM ContaBancario WHERE id = ?", (conta_destino,))
+        resultado_destino = cursor.fetchone()
+        titular_destino = resultado_destino[0]
+        saldo_destino = resultado_destino[1]
+
+
+        novo_saldo_origem = saldo_origem - valor
+        novo_saldo_destino = saldo_destino + valor
+
+        cursor.execute(
+            "UPDATE ContaBancario SET saldo = ? WHERE id = ?",
+            (novo_saldo_origem, conta_origem)
+        )
+
+        cursor.execute(
+            "UPDATE ContaBancario SET saldo = ? WHERE id = ?",
+            (novo_saldo_destino, conta_destino)
+        )
+
+            # extrato origem (saída)
+        cursor.execute("""
+            INSERT INTO Extrato
+            (conta_id, titular_conta, data_movimentacao, descricao, valor, saldo_apos)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            conta_origem,
+            titular_origem,
+            data,
+            f"Transferência para conta {conta_destino}",
+            -valor,
+            novo_saldo_origem
+        ))
+
+        # extrato destino (entrada)
+        cursor.execute("""
+            INSERT INTO Extrato
+            (conta_id, titular_conta, data_movimentacao, descricao, valor, saldo_apos)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            conta_destino,
+            titular_destino,
+            data,
+            f"Transferência recebida da conta {conta_origem}",
+            valor,
+            novo_saldo_destino
+        ))
+
+
+
+        conn.commit()
+
+    except Exception as e:
+        conn.rollback()
+        raise e
+
+    finally:
+        conn.close()
 
